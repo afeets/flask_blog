@@ -1,12 +1,14 @@
 from app import app, db, bcrypt
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
-from app.User.forms import LoginForm, RegistrationForm
+from app.User.forms import LoginForm, RegistrationForm, UpdateAccountForm
 from app.models import User
 
 user_blueprint = Blueprint('User',
                                 __name__,
-                                template_folder='templates/User')
+                                template_folder='templates/User',
+                                static_folder='static'
+                                )
 
 @user_blueprint.route("/register", methods=["GET","POST"])
 def register():
@@ -62,7 +64,21 @@ def logout():
   return redirect(url_for('home'))
 
 
-@user_blueprint.route("/account")
+@user_blueprint.route("/account", methods=["GET","POST"])
 @login_required
 def account():
-  return render_template('account.html', title='Account')
+  form = UpdateAccountForm()
+  if form.validate_on_submit():
+    current_user.username = form.username.data
+    current_user.email = form.email.data
+    db.session.commit()
+    flash('Your account has been updated.','success')
+    return redirect(url_for('User.account'))
+  elif request.method == "GET":
+    # populate form with current info
+    form.username.data = current_user.username
+    form.email.data = current_user.email
+    
+
+  image_file = url_for('User.static', filename='profile_pics/' + current_user.image_file)
+  return render_template('account.html', title='Account', image_file=image_file, form=form)
