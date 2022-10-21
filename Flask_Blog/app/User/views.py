@@ -5,6 +5,7 @@ from app.User.forms import LoginForm, RegistrationForm, UpdateAccountForm
 from app.models import User
 import secrets
 import os
+from PIL import Image
 
 user_blueprint = Blueprint('User',
                                 __name__,
@@ -76,8 +77,13 @@ def save_picture(form_picture):
   static_path = url_for('User.static', filename='profile_pics/' + picture_filename)
   full_path = app.root_path + static_path
 
-  # save picture to newly file path
-  form_picture.save(full_path)
+  # resize picture
+  output_size = (125,125)
+  i = Image.open(form_picture)
+  i.thumbnail(output_size)
+
+  # save resized picture to newly file path
+  i.save(full_path)
 
   return picture_filename
 
