@@ -27,6 +27,7 @@ from app import views
 
 # Register Blueprints
 from app.User.views import user_blueprint
-
+from app.Post.views import post_blueprint
 
 app.register_blueprint(user_blueprint, url_prefix='/User')
+app.register_blueprint(post_blueprint, url_prefix='/Post')
