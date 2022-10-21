@@ -53,3 +53,18 @@ def update(post_id):
     form.content.data = post.content
 
   return render_template('new.html', title='Update Post', legend='Update Post', form=form)
+
+@post_blueprint.route("/delete/<int:post_id>", methods=["POST"])
+@login_required
+def delete(post_id):
+  post = Post.query.get_or_404(post_id)
+  # check author of post to check access
+  if post.author != current_user:
+    abort(403)
+  
+  db.session.delete(post)
+  db.session.commit()
+
+  flash('Your Post has been deleted', 'success')
+
+  return redirect(url_for('home'))
