@@ -1,2 +1,5 @@
 env/
 __pycache__/
+profile_pics/
+!profile_pics/default.jpg
+

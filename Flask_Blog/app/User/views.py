@@ -3,6 +3,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
 from app.User.forms import LoginForm, RegistrationForm, UpdateAccountForm
 from app.models import User
+import secrets
+import os
 
 user_blueprint = Blueprint('User',
                                 __name__,
@@ -64,11 +66,31 @@ def logout():
   return redirect(url_for('home'))
 
 
+def save_picture(form_picture):
+  random_hex = secrets.token_hex(8)
+  # get file extension
+  _, f_ext = os.path.splitext(form_picture.filename)
+  picture_filename = random_hex + f_ext
+  
+  # create path to directory string
+  static_path = url_for('User.static', filename='profile_pics/' + picture_filename)
+  full_path = app.root_path + static_path
+
+  # save picture to newly file path
+  form_picture.save(full_path)
+
+  return picture_filename
+
 @user_blueprint.route("/account", methods=["GET","POST"])
 @login_required
 def account():
   form = UpdateAccountForm()
   if form.validate_on_submit():
+    if form.picture.data:
+      # call function to save picture and return filename
+      picture_file = save_picture(form.picture.data)
+      current_user.image_file = picture_file
+
     current_user.username = form.username.data
     current_user.email = form.email.data
     db.session.commit()
