@@ -2,7 +2,7 @@ from app import app, db, bcrypt
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
 from app.User.forms import LoginForm, RegistrationForm, UpdateAccountForm
-from app.models import User
+from app.models import User, Post
 import secrets
 import os
 from PIL import Image
@@ -110,3 +110,19 @@ def account():
 
   image_file = url_for('User.static', filename='profile_pics/' + current_user.image_file)
   return render_template('account.html', title='Account', image_file=image_file, form=form)
+
+
+@user_blueprint.route("/<string:username>")
+def get_posts(username):
+  page = request.args.get('page', 1, type=int)
+
+  # get user, or return 404 if user not found
+  user = User.query.filter_by(username=username).first_or_404()
+  
+  # paginate posts of user in descending time order
+  posts = Post.query\
+    .filter_by(author=user)\
+    .order_by(Post.date_posted.desc())\
+    .paginate(per_page=3, page = page)
+  
+  return render_template("posts.html", posts = posts, user=user)
