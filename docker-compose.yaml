@@ -1,0 +1,26 @@
+version: "3.7"
+
+services: 
+  flask:
+    build: ./Flask
+    container_name: flask
+    restart: always
+    environment:
+      - APP_NAME=Blog
+      - SECRET_KEY=Password123
+      - MAIL_SERVER=smtp.gmail.com
+      - MAIL_PORT=587
+      - MAIL_USE_TLS=True
+      - GMAIL_ADDRESS=example@gmail.com
+      - GMAIL_PASSWORD=example
+    expose:
+      - 8080
+    volumes:
+      - ./sqllite:/var/lib/sqllite
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"

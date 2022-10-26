@@ -11,12 +11,12 @@ import os
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = 'd119af253a2062ec517bd2c4887423fb'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
 
 
 # Configure SQLite DB
-db_path = os.path.join(os.path.dirname(__file__), 'site.db')
+db_path = 'var/lib/sqlite/site.db'
 db_uri = 'sqlite:///{}'.format(db_path)
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
